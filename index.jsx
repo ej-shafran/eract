@@ -42,8 +42,18 @@ const React = {
 };
 
 let rootInstance = null;
+let rerender = null;
+const states = [];
+let stateCursor = 0;
 
 function render(eractEl, domNode) {
+  if (!rerender) {
+    rerender = function() {
+      stateCursor = 0;
+      render(eractEl, domNode);
+    };
+  }
+
   const prev = rootInstance;
   const next = reconcile(domNode, prev, eractEl);
   rootInstance = next;
@@ -114,7 +124,9 @@ function instantiate(eractEl) {
 }
 
 function updateDOMProps(domNode, prevProps, nextProps) {
-  const prevKeys = Object.keys(prevProps);
+  const prevKeys = Object.keys(prevProps).filter(
+    (key) => prevProps[key] !== nextProps[key]
+  );
 
   prevKeys.filter(isEventProp).forEach((value) => {
     domNode.removeEventListener(
@@ -127,7 +139,9 @@ function updateDOMProps(domNode, prevProps, nextProps) {
     domNode[value] = null;
   });
 
-  const nextKeys = Object.keys(nextProps);
+  const nextKeys = Object.keys(nextProps).filter(
+    (key) => prevProps[key] !== nextProps[key]
+  );
 
   nextKeys.filter(isEventProp).forEach((value) => {
     domNode.addEventListener(
@@ -171,24 +185,20 @@ function reconcileChildren(instance, eractEl) {
   return newChildInstances.filter(Boolean);
 }
 
-const states = [];
-let stateCursor = 0;
 function useState(initialState) {
   const cursor = stateCursor++;
 
-  states[cursor] = states[cursor] ?? initialState;
+  states[cursor] =
+    states[cursor] ??
+    (typeof initialState === "function" ? initialState() : initialState);
 
   const setState = (newState) => {
-    states[cursor] = newState;
-    rerender();
+    states[cursor] =
+      typeof newState === "function" ? newState(states[cursor]) : newState;
+    if (rerender) rerender();
   };
 
   return [states[cursor], setState];
-}
-
-function rerender() {
-  stateCursor = 0;
-  render(<App />, document.getElementById("root"));
 }
 
 const Button = (props) => {
@@ -196,7 +206,7 @@ const Button = (props) => {
 
   return (
     <div>
-      <button onClick={() => setCount(count + 1)}>
+      <button onClick={() => setCount((prev) => prev + 1)}>
         {props.text}: {count}
       </button>
 
