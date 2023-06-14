@@ -1,3 +1,3 @@
-// Hot Module Reloading
+// HOT MODULE RELOADING
 new EventSource('/esbuild').addEventListener('change', () => location.reload());
 
