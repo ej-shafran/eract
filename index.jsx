@@ -43,16 +43,20 @@ const React = {
 
 let rootInstance = null;
 let rerender = null;
-const states = [];
-let stateCursor = 0;
+const hooks = [];
+let cleanups = [];
+let hookCursor = 0;
 
 function render(eractEl, domNode) {
   if (!rerender) {
     rerender = function() {
-      stateCursor = 0;
+      hookCursor = 0;
       render(eractEl, domNode);
     };
   }
+
+  cleanups.forEach((cb) => cb());
+  cleanups = [];
 
   const prev = rootInstance;
   const next = reconcile(domNode, prev, eractEl);
@@ -186,23 +190,48 @@ function reconcileChildren(instance, eractEl) {
 }
 
 function useState(initialState) {
-  const cursor = stateCursor++;
+  const cursor = hookCursor++;
 
-  states[cursor] =
-    states[cursor] ??
+  hooks[cursor] =
+    hooks[cursor] ??
     (typeof initialState === "function" ? initialState() : initialState);
 
   const setState = (newState) => {
-    states[cursor] =
-      typeof newState === "function" ? newState(states[cursor]) : newState;
+    hooks[cursor] =
+      typeof newState === "function" ? newState(hooks[cursor]) : newState;
     if (rerender) rerender();
   };
 
-  return [states[cursor], setState];
+  return [hooks[cursor], setState];
+}
+
+function useEffect(cb, deps) {
+  const cursor = hookCursor++;
+
+  let hasChanged = true;
+
+  if (deps) {
+    hasChanged = deps.some((dep, i) => !Object.is(hooks[cursor]?.[i], dep));
+  }
+
+  hooks[cursor] = deps;
+
+  if (hasChanged) {
+    const cleanup = cb();
+    if (cleanup) cleanups.push(cleanup);
+  }
 }
 
 const Button = (props) => {
   const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    console.log("count changed: ", count);
+
+    return () => {
+      console.log("cleanup!");
+    };
+  }, [count]);
 
   return (
     <div>
