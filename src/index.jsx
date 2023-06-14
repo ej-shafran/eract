@@ -1,4 +1,4 @@
-import { render, useState, useEffect } from "./react";
+import { render, useState, useEffect, useRef } from "./react";
 
 const Button = (props) => {
   const [count, setCount] = useState(0);
@@ -22,6 +22,27 @@ const Button = (props) => {
   );
 };
 
+function RandomImage() {
+  const [clicks, setClicks] = useState(0);
+  const seed = useRef(Math.floor(Math.random() * 100000));
+
+  useEffect(() => {
+    console.log("seed: ", seed.current);
+  }, []);
+
+  useEffect(() => {
+    console.log("clicks on image: ", clicks);
+  }, [clicks]);
+
+  return (
+    <img
+      src={`https://picsum.photos/seed/${seed.current}/200/300`}
+      alt="Random!"
+      onClick={() => setClicks((prev) => prev + 1)}
+    />
+  );
+}
+
 const App = () => {
   const [name, setName] = useState("");
 
@@ -33,7 +54,7 @@ const App = () => {
       <Button text="Count Again" />
       <br />
 
-      <img alt="Random!" src="https://picsum.photos/200/300" />
+      <RandomImage />
 
       <br />
       <br />

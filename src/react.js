@@ -48,9 +48,6 @@ export function render(eractEl, domNode) {
     };
   }
 
-  cleanups.forEach((cb) => cb());
-  cleanups = [];
-
   const prev = rootInstance;
   const next = reconcile(domNode, prev, eractEl);
   rootInstance = next;
@@ -203,15 +200,27 @@ export function useEffect(cb, deps) {
 
   let hasChanged = true;
 
-  if (deps) {
-    hasChanged = deps.some((dep, i) => !Object.is(hooks[cursor]?.[i], dep));
+  if (hooks[cursor]) {
+    hasChanged = !deps || deps.some((dep, i) => !Object.is(hooks[cursor]?.[i], dep));
+  }
+
+  if (cleanups[cursor] && hasChanged) {
+    cleanups[cursor]();
+    cleanups[cursor] = null;
   }
 
   hooks[cursor] = deps;
 
   if (hasChanged) {
     const cleanup = cb();
-    if (cleanup) cleanups.push(cleanup);
+    if (cleanup) cleanups[cursor] = cleanup;
   }
 }
 
+export function useRef(initial) {
+  const cursor = hookCursor++;
+
+  hooks[cursor] = hooks[cursor] ?? { current: initial };
+
+  return hooks[cursor];
+}
