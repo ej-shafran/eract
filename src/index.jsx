@@ -48,6 +48,8 @@ const App = () => {
 
   return (
     <div>
+      <h1>My Eract App</h1>
+
       <Button text="Count" />
       <br />
 
@@ -59,6 +61,7 @@ const App = () => {
       <br />
       <br />
 
+      <label>Name: </label>
       <input value={name} onInput={(e) => setName(e.target.value)} />
       <p>Your name is: {name}</p>
     </div>
