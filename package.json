@@ -1,0 +1,16 @@
+{
+  "name": "eract",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "esbuild index.jsx --bundle --outdir=./build --servedir=./ --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.18.2",
+    "typescript": "^5.1.3"
+  }
+}
