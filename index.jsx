@@ -200,7 +200,7 @@ const Button = (props) => {
         {props.text}: {count}
       </button>
 
-      <div>{count < 10 && <span>The count is low!</span>}</div>
+      <div>{count >= 10 && <span>The count is high!</span>}</div>
     </div>
   );
 };
@@ -216,7 +216,12 @@ const App = () => {
       <Button text="Count Again" />
       <br />
 
-      <input value={name} onChange={(e) => setName(e.target.value)} />
+      <img alt="Random!" src="https://picsum.photos/200/300" />
+
+      <br />
+      <br />
+
+      <input value={name} onInput={(e) => setName(e.target.value)} />
       <p>Your name is: {name}</p>
     </div>
   );
