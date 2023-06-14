@@ -23,6 +23,8 @@ globalThis.React = {
           return child;
         } else if (typeof child === "string" || typeof child === "number") {
           return React.createElement(TEXT, { nodeValue: "" + child });
+        } else {
+          INVALID();
         }
       });
 
@@ -82,7 +84,7 @@ function reconcile(domNode, instance, eractEl) {
 function instantiate(eractEl) {
   const { type, props } = eractEl;
 
-  if (typeof type !== "string") {
+  if (typeof type === "function") {
     const returned = type(props);
     const instance = instantiate(returned);
 
