@@ -1,6 +1,3 @@
-// Hot Module Reloading
-new EventSource('/esbuild').addEventListener('change', () => location.reload());
-
 function TODO() {
   throw new Error("Not yet implemented!");
 }
@@ -16,3 +13,6 @@ function INVALID(debug) {
 }
 
 console.log("Hello, world!");
+
+// HOT MODULE RELOADING - makes sure the page refreshes when we save the files
+import "./hmr";
