@@ -1,4 +1,4 @@
-import React, { render, useState } from "./react";
+import React, { render, useEffect, useState } from "./react";
 
 /**
  * App.
@@ -7,10 +7,23 @@ import React, { render, useState } from "./react";
  */
 function App(props) {
   const [count, setCount] = useState(0);
+  const [name, setName] = useState("");
+
+  useEffect(() => {
+    console.log("mounted");
+
+    return () => {
+      console.log("unmounted");
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log("count increased: ", count);
+  }, [count]);
 
   return (
     <div>
-      <span>{props.text}</span>
+      {count < 5 && <span>{props.text}</span>}
       <h1>Hello, world!</h1>
 
       <br />
@@ -24,6 +37,13 @@ function App(props) {
       >
         Count: {count}
       </button>
+
+      <br />
+      <br />
+      <br />
+
+      <h2>Name is: {name}</h2>
+      <input value={name} onInput={(e) => setName(e.target.value)} />
     </div>
   );
 }

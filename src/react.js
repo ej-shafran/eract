@@ -1,4 +1,4 @@
-import { INVALID, TODO } from "./common/utils";
+import { INVALID } from "./common/utils";
 
 /**
  * @typedef {{
@@ -68,6 +68,21 @@ let rootInstance = null;
 let rerender = null;
 
 /**
+ * @type {unknown[]}
+ */
+const hooks = [];
+
+/**
+ * @type {number}
+ */
+let hookCursor = 0;
+
+/**
+ * @type {(() => void)[]}
+ */
+const cleanups = [];
+
+/**
  * render.
  *
  * @param {EractElement} eractEl
@@ -76,7 +91,7 @@ let rerender = null;
 export function render(eractEl, domNode) {
   if (!rerender) {
     rerender = function() {
-      stateCursor = 0;
+      hookCursor = 0;
       render(eractEl, domNode);
     };
   }
@@ -140,7 +155,9 @@ function reconcile(domNode, instance, eractEl) {
     const returned = eractEl.type(eractEl.props);
     //* reconcile the returned value with the previous returned value
     reconcile(domNode, instance.__previousReturn, returned);
+    //* update the element stored within the instance
     instance.eractEl = eractEl;
+    //* return it
     return instance;
   } else {
     INVALID("illegal reconciliation");
@@ -240,9 +257,6 @@ function isAttribProp(key) {
   return !key.startsWith("on") && key !== "children";
 }
 
-const states = [];
-let stateCursor = 0;
-
 /**
  * useState.
  *
@@ -253,10 +267,12 @@ let stateCursor = 0;
  * @returns {[T, (newState: T | ((prev: T) => T)) => void]}
  */
 export function useState(initialState) {
-  const cursor = stateCursor++;
-  states[cursor] =
-    states[cursor] ??
-    (initialState instanceof Function ? initialState() : initialState);
+  const cursor = hookCursor++;
+
+  if (hooks[cursor] === undefined || hooks[cursor] === null) {
+    hooks[cursor] =
+      initialState instanceof Function ? initialState() : initialState;
+  }
 
   /**
    * setState.
@@ -264,13 +280,43 @@ export function useState(initialState) {
    * @param {T | ((prev: T) => T)} newState
    */
   function setState(newState) {
-    states[cursor] =
-      newState instanceof Function ? newState(states[cursor]) : newState;
+    hooks[cursor] =
+      newState instanceof Function ? newState(hooks[cursor]) : newState;
+
     if (!rerender) INVALID("useState not called inside a component!");
+
     rerender();
   }
 
-  return [states[cursor], setState];
+  return [hooks[cursor], setState];
+}
+
+/**
+ * useEffect.
+ *
+ * @param {() => void | (() => void)} cb
+ * @param {unknown[] | undefined} deps
+ */
+export function useEffect(cb, deps) {
+  const cursor = hookCursor++;
+
+  let hasChanged = true;
+
+  if (hooks[cursor]) {
+    hasChanged =
+      !deps || deps.some((dep, i) => !Object.is(dep, hooks[cursor][i]));
+  }
+
+  if (hasChanged && cleanups[cursor]) {
+    cleanups[cursor]();
+  }
+
+  hooks[cursor] = deps;
+
+  if (hasChanged) {
+    const cleanup = cb();
+    if (cleanup) cleanups[cursor] = cleanup;
+  }
 }
 
 /**
