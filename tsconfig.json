@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "jsx": "react",
+    "jsxFactory": "Eract.createElement",
+    "jsxFragmentFactory": "Eract.Fragment",
+    "reactNamespace": "Eract",
+    "rootDir": "./src",
+    "noEmit": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+  }
+}

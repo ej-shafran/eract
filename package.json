@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "esbuild ./src/index.jsx --bundle --outdir=./build --servedir=./ --watch"
+    "start": "esbuild ./src/index.tsx --bundle --outdir=./build --servedir=./ --watch"
   },
   "keywords": [],
   "author": "",
