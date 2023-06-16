@@ -16,12 +16,14 @@ export function todo() {
  * @param {string | undefined} message
  */
 export function invariant(condition, message = "reason unknown") {
-  console.error(
-    `Invariance failed; \n%c Reason: %c ${message}`,
-    ERROR_INFO_STYLES,
-    ERROR_MESSAGE_STYLES
-  );
-  if (!condition) throw new Error(`INVARIANCE: ${message}`);
+  if (!condition) {
+    console.error(
+      `Invariance failed; \n%c Reason: %c ${message}`,
+      ERROR_INFO_STYLES,
+      ERROR_MESSAGE_STYLES
+    );
+    throw new Error(`INVARIANCE: ${message}`);
+  }
 }
 
 /**
