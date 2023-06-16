@@ -1,4 +1,4 @@
-import { INVALID, NEVER, TODO } from "./common/utils";
+import { INVALID, NEVER } from "./common/utils";
 
 type GenericProps = Record<string, any> &
   Partial<Record<"children", EractElement[]>>;
@@ -13,6 +13,7 @@ type EractInstance = {
   domNode: Node;
   eractEl: EractElement;
   childInstances: EractInstance[];
+  __previousReturn?: EractInstance;
 };
 
 type HTMLElementTagName = keyof HTMLElementTagNameMap;
@@ -80,14 +81,24 @@ const Eract = {
 export default Eract;
 
 let rootInstance: EractInstance | null = null;
+let rerender: (() => void) | null = null;
+const hooks = [] as unknown[];
+let hookCursor = 0;
 export function render(eractEl: EractElement, domNode: HTMLElement) {
+  if (rerender === null) {
+    rerender = () => {
+      hookCursor = 0;
+      render(eractEl, domNode);
+    };
+  }
+
   const prev = rootInstance;
   const next = reconcile(domNode, prev, eractEl);
   rootInstance = next;
 }
 
 function reconcile(
-  domNode: HTMLElement,
+  domNode: Node,
   instance: EractInstance | null,
   eractEl: EractElement | null
 ): EractInstance | null {
@@ -109,46 +120,61 @@ function reconcile(
     const newInstance = instantiate(eractEl);
     domNode.replaceChild(newInstance.domNode, instance.domNode);
     return newInstance;
-  } else if (typeof eractEl.type === "string") {
+  } else if (
+    typeof eractEl.type === "string" ||
+    eractEl.type === $$text ||
+    eractEl.type === $$fragment
+  ) {
     // update the instance and reconcile the children
 
-    updateDomProps(instance.domNode, eractEl.props);
+    updateDomProps(instance.domNode, instance.eractEl.props, eractEl.props);
     const newChildInstances = reconcileChildren(instance, eractEl);
     instance.eractEl = eractEl;
     instance.childInstances = newChildInstances;
     return instance;
   } else if (typeof eractEl.type === "function") {
-    TODO();
+    const returned = eractEl.type(eractEl.props);
+    reconcile(domNode, instance.__previousReturn ?? null, returned);
+    instance.eractEl = eractEl;
+    return instance;
   } else {
-    TODO();
+    console.log("eractEl: ", eractEl);
+    INVALID("invalid eractEl type");
   }
 }
 function instantiate(eractEl: EractElement): EractInstance {
   const { type, props } = eractEl;
 
   if (typeof type === "function") {
-    TODO();
+    const returned = type(props);
+    const returnedInstance = instantiate(returned);
+
+    return {
+      eractEl,
+      domNode: returnedInstance.domNode,
+      childInstances: returnedInstance.childInstances,
+      __previousReturn: returnedInstance,
+    };
   }
 
-  if (typeof type === "symbol") {
-    if (type === $$fragment) {
-      TODO();
-    } else if (type === $$text) {
-      const domNode = document.createTextNode(props.nodeValue);
+  if (type === $$text) {
+    const domNode = document.createTextNode(props.nodeValue);
 
-      return {
-        domNode,
-        childInstances: [],
-        eractEl,
-      };
-    } else {
-      INVALID();
-    }
+    return {
+      domNode,
+      childInstances: [],
+      eractEl,
+    };
   }
 
-  const domNode = document.createElement(type);
+  if (typeof type === "symbol" && type !== $$fragment) INVALID();
 
-  updateDomProps(domNode, props);
+  const domNode =
+    typeof type === "symbol"
+      ? document.createDocumentFragment()
+      : document.createElement(type);
+
+  updateDomProps(domNode, {}, props);
 
   const { children = [] } = props;
 
@@ -198,22 +224,42 @@ const invalidDomProps = [
 ] as const;
 type InvalidDomProp = (typeof invalidDomProps)[number];
 
-function updateDomProps(domNode: Node, props: GenericProps) {
-  const keys = Object.keys(props);
+function updateDomProps(
+  domNode: Node,
+  prevProps: GenericProps,
+  nextProps: GenericProps
+) {
+  const prevKeys = Object.keys(prevProps).filter(
+    (key) => prevProps[key] !== nextProps[key]
+  );
 
-  keys.forEach((key) => {
+  prevKeys.forEach((key) => {
     if (key === "children") {
       return;
     } else if (key.startsWith("on")) {
       const event = key.slice(2).toLowerCase();
-      domNode.addEventListener(event, props[key]);
-    } else if (
-      Object.keys(HTMLElement.prototype).includes(key) &&
-      !invalidDomProps.includes(key as InvalidDomProp)
-    ) {
-      domNode[key as Exclude<keyof Node, InvalidDomProp>] = props[key];
+      domNode.removeEventListener(event, prevProps[key]);
+    } else if (!invalidDomProps.includes(key as InvalidDomProp)) {
+      domNode[key as Exclude<keyof Node, InvalidDomProp>] = null as any;
     } else {
-      TODO();
+      INVALID("invalid DOM property");
+    }
+  });
+
+  const nextKeys = Object.keys(nextProps).filter(
+    (key) => prevProps[key] !== nextProps[key]
+  );
+
+  nextKeys.forEach((key) => {
+    if (key === "children") {
+      return;
+    } else if (key.startsWith("on")) {
+      const event = key.slice(2).toLowerCase();
+      domNode.addEventListener(event, nextProps[key]);
+    } else if (!invalidDomProps.includes(key as InvalidDomProp)) {
+      domNode[key as Exclude<keyof Node, InvalidDomProp>] = nextProps[key];
+    } else {
+      INVALID("invalid DOM property");
     }
   });
 }
@@ -222,5 +268,43 @@ function reconcileChildren(
   instance: EractInstance,
   eractEl: EractElement<any>
 ): EractInstance[] {
-  TODO();
+  const { props } = eractEl;
+  const newChildInstances = [] as EractInstance[];
+
+  const childCount = Math.max(
+    props.children.length,
+    instance.childInstances.length
+  );
+
+  for (let i = 0; i < childCount; i++) {
+    const instanceChild = instance.childInstances[i] ?? null;
+    const eractElChild = props.children[i] ?? null;
+
+    const newInstance = reconcile(
+      instance.domNode,
+      instanceChild,
+      eractElChild
+    );
+
+    if (newInstance) newChildInstances.push(newInstance);
+  }
+
+  return newChildInstances;
+}
+
+type SetState<T> = (updater: ((prev: T) => T) | T) => void;
+
+export function useState<T>(initialState: T) {
+  const cursor = hookCursor++;
+
+  hooks[cursor] ??= initialState;
+
+  const setState: SetState<T> = (updater) => {
+    hooks[cursor] =
+      updater instanceof Function ? updater(hooks[cursor] as T) : updater;
+    if (!rerender) INVALID();
+    rerender();
+  };
+
+  return [hooks[cursor] as T, setState] as const;
 }
