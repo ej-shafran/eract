@@ -6,6 +6,10 @@ function App() {
 
   useEffect(() => {
     console.log("count = ", count);
+
+    return () => {
+      console.log("cleanup");
+    }
   }, [count]);
 
   return (
