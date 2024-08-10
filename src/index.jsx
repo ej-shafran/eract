@@ -99,8 +99,13 @@ function reconcile(parentDomNode, fiber, element) {
     }
 
     if (typeof element.type === "function") {
-      todo();
-      return;
+      const returnedElement = element.type(element.props);
+      const newFiber = reconcile(parentDomNode, fiber.returnedFiber, returnedElement);
+      fiber.returnedFiber = newFiber;
+      fiber.childFibers = newFiber.childFibers;
+      fiber.domNode = newFiber.domNode;
+      fiber.element = element;
+      return fiber;
     }
 
     // update the existing node in-place
