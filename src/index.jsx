@@ -178,7 +178,7 @@ function App() {
           <input onInput={(e) => setFullName(e.target.value)} />
         </div>
 
-        <p>Your name is: {fullName}</p>
+        {!!fullName && <p>Your name is: {fullName}</p>}
       </div>
     </div>
   );
