@@ -79,6 +79,22 @@ function createFiber(element) {
     element,
   }
 }
+function reconcile(parentDomNode, fiber, element) {
+  if (!fiber) {
+    // create a fiber for the element and add its node to the dom
+    todo();
+  } else if (element === null || element === undefined) {
+    // remove the existing node from the dom
+    todo();
+  } else if (element.type !== fiber.element.type) {
+    // replace the existing node with a new one
+    todo();
+  } else {
+    // update the existing node in-place
+    todo();
+  }
+}
+
 let rootFiber = null;
 
 function render(element, domNode) {
