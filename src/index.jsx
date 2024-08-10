@@ -1,10 +1,12 @@
 import { todo } from "./common/utils";
 
+let rerender = null;
+
 function useState(initialState) {
   let state = initialState;
   function setState(updater) {
     state = typeof updater === "function" ? updater(state) : updater;
-    ReactDOM.render(element, domNode);
+    rerender();
   }
   return [state, setState];
 }
@@ -69,6 +71,12 @@ function createFiber(element) {
   }
 }
 function render(element, domNode) {
+  if (!rerender) {
+    rerender = () => {
+      render(element, domNode);
+    }
+  }
+
   const fiber = createFiber(element);
   domNode.appendChild(fiber.domNode);
 }
