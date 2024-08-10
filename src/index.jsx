@@ -70,6 +70,8 @@ function createFiber(element) {
     element,
   }
 }
+let rootFiber = null;
+
 function render(element, domNode) {
   if (!rerender) {
     rerender = () => {
@@ -77,8 +79,13 @@ function render(element, domNode) {
     }
   }
 
-  const fiber = createFiber(element);
-  domNode.appendChild(fiber.domNode);
+  if (!rootFiber) {
+    const fiber = createFiber(element);
+    domNode.appendChild(fiber.domNode);
+    rootFiber = fiber;
+  } else {
+    todo();
+  }
 }
 
 const ReactDOM = { render };
