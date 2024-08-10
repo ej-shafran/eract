@@ -11,7 +11,9 @@ function createElement(type, props = {}, ...children) {
 const React = { createElement };
 
 function updateDomProperties(domNode, newProps) {
-  todo();
+  for (const key in newProps) {
+    domNode.setAttribute(key, newProps[key]);
+  }
 }
 
 function createFiber(element) {
