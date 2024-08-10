@@ -61,6 +61,7 @@ function createFiber(element) {
     return {
       domNode: returnedFiber.domNode,
       childFibers: returnedFiber.childFibers,
+      returnedFiber,
       element,
     }
   }
