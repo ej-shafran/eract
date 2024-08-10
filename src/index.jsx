@@ -114,7 +114,8 @@ function reconcile(parentDomNode, fiber, element) {
     return newFiber;
   } else if (element === null || element === undefined) {
     // remove the existing node from the dom
-    todo();
+    parentDomNode.removeChild(fiber.domNode);
+    return null;
   } else if (element.type !== fiber.element.type) {
     // replace the existing node with a new one
     todo();
