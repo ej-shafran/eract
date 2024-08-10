@@ -2,15 +2,19 @@ import { todo } from "./common/utils";
 
 let rerender = null;
 
-let state = undefined;
+let stateCursor = 0;
+const states = [];
 
 function useState(initialState) {
-  state = state ?? initialState;
+  const cursor = stateCursor++;
+  if (states.length <= cursor) {
+    states[cursor] = initialState;
+  }
   function setState(updater) {
-    state = typeof updater === "function" ? updater(state) : updater;
+    states[cursor] = typeof updater === "function" ? updater(states[cursor]) : updater;
     rerender();
   }
-  return [state, setState];
+  return [states[cursor], setState];
 }
 
 function createElement(type, props = {}, ...children) {
