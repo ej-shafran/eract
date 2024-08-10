@@ -21,7 +21,7 @@ function createElement(type, props = {}, ...children) {
   return {
     type,
     props,
-    children
+    children: children.filter((child) => typeof child === "number" || !!child)
   }
 }
 
