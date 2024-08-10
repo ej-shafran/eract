@@ -114,8 +114,11 @@ function reconcile(parentDomNode, fiber, element) {
     todo();
   } else {
     if (typeof element !== "object") {
-      todo();
-      return;
+      if (fiber.element !== element) {
+        fiber.domNode.nodeValue = String(element);
+        fiber.element = element;
+      }
+      return fiber;
     }
 
     if (typeof element.type === "function") {
