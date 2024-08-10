@@ -179,6 +179,7 @@ function App() {
           <input onInput={(e) => setFullName(e.target.value)} />
         </div>
 
+        {fullName ? <b>I know your name!</b> : <p>I don't know your name...</p>}
         {!!fullName && <p>Your name is: {fullName}</p>}
       </div>
     </div>
