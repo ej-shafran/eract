@@ -48,7 +48,12 @@ export function useEffect(callback, deps) {
     hooks[cursor] = deps;
     return;
   }
-  todo();
+
+  const changed = deps.some((dep, i) => !Object.is(dep, hooks[cursor][i]));
+  if (changed) {
+    callback();
+    hooks[cursor] = deps;
+  }
 }
 
 function createElement(type, props = {}, ...children) {
