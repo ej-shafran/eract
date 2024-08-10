@@ -12,8 +12,13 @@ const React = { createElement };
 
 function createFiber(element) {
   if (typeof element !== "object") {
-    todo();
-    return;
+    const domNode = document.createTextNode(String(element));
+    const childFibers = [];
+    return {
+      domNode,
+      childFibers,
+      element,
+    }
   }
 
   const { type, props, children } = element;
