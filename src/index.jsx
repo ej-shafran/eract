@@ -82,7 +82,22 @@ function createFiber(element) {
 }
 
 function reconcileChildren(fiber, element) {
-  todo();
+  const childFibers = [];
+
+  const biggestLength = Math.max(
+    fiber.childFibers.length,
+    element.children.length,
+  );
+
+  for (let i = 0; i < biggestLength; i++) {
+    const childFiber = fiber.childFibers[i];
+    const childElement = element.children[i];
+
+    const newChildFiber = reconcile(fiber.domNode, childFiber, childElement);
+    if (newChildFiber) childFibers.push(newChildFiber);
+  }
+
+  return childFibers;
 }
 
 function reconcile(parentDomNode, fiber, element) {
