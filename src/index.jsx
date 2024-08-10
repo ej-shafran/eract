@@ -1,5 +1,3 @@
-import { todo } from "./common/utils";
-
 let rerender = null;
 
 let stateCursor = 0;
