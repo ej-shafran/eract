@@ -2,8 +2,10 @@ import { todo } from "./common/utils";
 
 let rerender = null;
 
+let state = undefined;
+
 function useState(initialState) {
-  let state = initialState;
+  state = state ?? initialState;
   function setState(updater) {
     state = typeof updater === "function" ? updater(state) : updater;
     rerender();
