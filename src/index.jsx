@@ -1,7 +1,11 @@
 import { todo } from "./common/utils";
 
-function createElement() {
-  todo();
+function createElement(type, props = {}, ...children) {
+  return {
+    type,
+    props,
+    children
+  }
 }
 
 const React = { createElement };
