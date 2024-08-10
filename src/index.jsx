@@ -150,6 +150,7 @@ let rootFiber = null;
 function render(element, domNode) {
   if (!rerender) {
     rerender = () => {
+      stateCursor = 0;
       render(element, domNode);
     }
   }
