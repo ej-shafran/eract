@@ -1,7 +1,11 @@
 import { todo } from "./common/utils";
 
-function useState() {
-  todo();
+function useState(initialState) {
+  let state = initialState;
+  function setState(updater) {
+    state = typeof updater === "function" ? updater(state) : updater;
+  }
+  return [state, setState];
 }
 
 function createElement(type, props = {}, ...children) {
