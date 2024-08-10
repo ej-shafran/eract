@@ -21,7 +21,16 @@ function createElement(type, props = {}, ...children) {
 
 const React = { createElement };
 
-function updateDomProperties(domNode, newProps) {
+function updateDomProperties(domNode, oldProps, newProps) {
+  for (const key in oldProps) {
+    if (key.startsWith("on")) {
+      const event = key.slice(2).toLowerCase();
+      domNode.removeEventListener(event, oldProps[key]);
+    } else {
+      domNode.removeAttribute(key);
+    }
+  }
+
   for (const key in newProps) {
     if (key.startsWith("on")) {
       const event = key.slice(2).toLowerCase();
@@ -57,7 +66,7 @@ function createFiber(element) {
   }
 
   const domNode = document.createElement(type);
-  updateDomProperties(domNode, props);
+  updateDomProperties(domNode, {}, props);
 
   const childFibers = children.map(createFiber);
   childFibers.forEach(fiber => {
@@ -84,6 +93,8 @@ function render(element, domNode) {
     domNode.appendChild(fiber.domNode);
     rootFiber = fiber;
   } else {
+    updateDomProperties(rootFiber.domNode, rootFiber.element.props, element.props);
+
     todo();
   }
 }
