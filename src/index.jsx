@@ -4,7 +4,7 @@ function useState(initialState) {
   let state = initialState;
   function setState(updater) {
     state = typeof updater === "function" ? updater(state) : updater;
-    console.log("state = ", state);
+    ReactDOM.render(element, domNode);
   }
   return [state, setState];
 }
