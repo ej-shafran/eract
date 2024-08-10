@@ -19,8 +19,8 @@ import { todo } from "./common/utils";
  **/
 let rerender = null;
 
-let stateCursor = 0;
-const states = [];
+let hookCursor = 0;
+const hooks = [];
 
 /**
  * @template {T}
@@ -29,16 +29,16 @@ const states = [];
  * @returns {[T, (updater: T | ((prev: T) => T) => void]}
  **/
 export function useState(initialState) {
-  const cursor = stateCursor++;
-  if (states.length <= cursor) {
-    states[cursor] = initialState;
+  const cursor = hookCursor++;
+  if (hooks.length <= cursor) {
+    hooks[cursor] = initialState;
   }
   function setState(updater) {
-    states[cursor] =
-      typeof updater === "function" ? updater(states[cursor]) : updater;
+    hooks[cursor] =
+      typeof updater === "function" ? updater(hooks[cursor]) : updater;
     rerender();
   }
-  return [states[cursor], setState];
+  return [hooks[cursor], setState];
 }
 
 export function useEffect() {
@@ -212,7 +212,7 @@ let rootFiber = null;
 function render(element, domNode) {
   if (!rerender) {
     rerender = () => {
-      stateCursor = 0;
+      hookCursor = 0;
       render(element, domNode);
     };
   }
