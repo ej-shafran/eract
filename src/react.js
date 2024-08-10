@@ -41,6 +41,10 @@ export function useState(initialState) {
   return [hooks[cursor], setState];
 }
 
+/**
+ * @param {(() => void) | (() => () => void)} callback
+ * @param {unknown[]} deps
+ **/
 export function useEffect(callback, deps) {
   const cursor = hookCursor++;
   if (hooks.length <= cursor) {
