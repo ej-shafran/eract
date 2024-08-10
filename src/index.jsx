@@ -1,8 +1,31 @@
+/**
+  * @typedef {{
+  *   type: string | (() => ReactElement),
+  *   props: Record<string, unknown>,
+  *   children: (ReactElement | string | number | true)[];
+  * }} ReactElement
+  *
+  * @typedef {{
+  *   domNode: Node;
+  *   element: ReactElement;
+  *   childFibers: Fiber[];
+  * }} Fiber
+  */
+
+/**
+ * @type {(() => void) | null}
+ **/
 let rerender = null;
 
 let stateCursor = 0;
 const states = [];
 
+/**
+  * @template {T}
+  *
+  * @param {T} initialState
+  * @returns {[T, (updater: T | ((prev: T) => T) => void]}
+  **/
 function useState(initialState) {
   const cursor = stateCursor++;
   if (states.length <= cursor) {
@@ -25,6 +48,11 @@ function createElement(type, props = {}, ...children) {
 
 const React = { createElement };
 
+/**
+  * @param {Node} domNode
+  * @param {Record<string, unknown>} oldProps
+  * @param {Record<string, unknown>} newProps
+  **/
 function updateDomProperties(domNode, oldProps, newProps) {
   for (const key in oldProps) {
     if (key.startsWith("on")) {
@@ -45,6 +73,10 @@ function updateDomProperties(domNode, oldProps, newProps) {
   }
 }
 
+/**
+  * @param {ReactElement | string | number | true} element
+  * @returns {Fiber}
+  **/
 function createFiber(element) {
   if (typeof element !== "object") {
     const domNode = document.createTextNode(String(element));
@@ -85,6 +117,11 @@ function createFiber(element) {
   }
 }
 
+/**
+  * @param {Fiber} fiber
+  * @param {ReactElement} element
+  * @returns {Fiber[]}
+  **/
 function reconcileChildren(fiber, element) {
   const childFibers = [];
 
@@ -104,6 +141,12 @@ function reconcileChildren(fiber, element) {
   return childFibers;
 }
 
+/**
+  * @param {Node} parentDomNode
+  * @param {Fiber | null} fiber
+  * @param {ReactElement | string | number | true | null} element
+  * @returns {Fiber | null}
+  **/
 function reconcile(parentDomNode, fiber, element) {
   if (!fiber) {
     // create a fiber for the element and add its node to the dom
@@ -146,8 +189,15 @@ function reconcile(parentDomNode, fiber, element) {
   }
 }
 
+/**
+  * @type {Fiber | null}
+  **/
 let rootFiber = null;
 
+/**
+  * @param {ReactElement} element
+  * @param {Node} domNode
+  **/
 function render(element, domNode) {
   if (!rerender) {
     rerender = () => {
