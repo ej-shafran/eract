@@ -80,6 +80,11 @@ function createFiber(element) {
     element,
   }
 }
+
+function reconcileChildren(fiber, element) {
+  todo();
+}
+
 function reconcile(parentDomNode, fiber, element) {
   if (!fiber) {
     // create a fiber for the element and add its node to the dom
@@ -110,7 +115,9 @@ function reconcile(parentDomNode, fiber, element) {
 
     // update the existing node in-place
     updateDomProperties(fiber.domNode, fiber.element.props, element.props);
-    todo();
+    fiber.childFibers = reconcileChildren(fiber, element);
+    fiber.element = element;
+    return fiber;
   }
 }
 
