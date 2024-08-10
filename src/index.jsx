@@ -35,8 +35,14 @@ function createFiber(element) {
   const { type, props, children } = element;
 
   if (typeof type === "function") {
-    todo();
-    return;
+    const returnedElement = type();
+    const returnedFiber = createFiber(returnedElement);
+
+    return {
+      domNode: returnedFiber.domNode,
+      childFibers: returnedFiber.childFibers,
+      element,
+    }
   }
 
   const domNode = document.createElement(type);
