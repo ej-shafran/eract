@@ -10,8 +10,13 @@ function createElement(type, props = {}, ...children) {
 
 const React = { createElement };
 
-function render(element, domNode) {
+function createFiber(element) {
   todo();
+}
+
+function render(element, domNode) {
+  const fiber = createFiber(element);
+  domNode.appendChild(fiber.domNode);
 }
 
 const ReactDOM = { render };
