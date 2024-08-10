@@ -41,7 +41,13 @@ export function useState(initialState) {
   return [hooks[cursor], setState];
 }
 
-export function useEffect() {
+export function useEffect(callback, deps) {
+  const cursor = hookCursor++;
+  if (hooks.length <= cursor) {
+    callback();
+    hooks[cursor] = deps;
+    return;
+  }
   todo();
 }
 
