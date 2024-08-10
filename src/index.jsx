@@ -12,7 +12,12 @@ const React = { createElement };
 
 function updateDomProperties(domNode, newProps) {
   for (const key in newProps) {
-    domNode.setAttribute(key, newProps[key]);
+    if (key.startsWith("on")) {
+      const event = key.slice(2).toLowerCase();
+      domNode.addEventListener(event, newProps[key]);
+    } else {
+      domNode.setAttribute(key, newProps[key]);
+    }
   }
 }
 
