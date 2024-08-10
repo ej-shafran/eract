@@ -10,6 +10,10 @@ function createElement(type, props = {}, ...children) {
 
 const React = { createElement };
 
+function updateDomProperties(domNode, newProps) {
+  todo();
+}
+
 function createFiber(element) {
   if (typeof element !== "object") {
     const domNode = document.createTextNode(String(element));
@@ -29,6 +33,7 @@ function createFiber(element) {
   }
 
   const domNode = document.createElement(type);
+  updateDomProperties(domNode, props);
 
   const childFibers = children.map(createFiber);
   childFibers.forEach(fiber => {
