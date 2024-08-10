@@ -1,5 +1,9 @@
 import { todo } from "./common/utils";
 
+function useState() {
+  todo();
+}
+
 function createElement(type, props = {}, ...children) {
   return {
     type,
@@ -66,11 +70,19 @@ function render(element, domNode) {
 
 const ReactDOM = { render };
 
-function App({ id }) {
-  return <div id={id} onClick={() => console.log("hi!")}>Hello, world!</div>
+function App() {
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <div>Count is: {count}</div>
+      <button onClick={() => setCount((prev) => prev + 1)}>Increment</button>
+      <button onClick={() => setCount(0)}>Reset</button>
+    </div>
+  );
 }
 
-const element = <App id="app" />;
+const element = <App />;
 const domNode = document.getElementById("root");
 ReactDOM.render(element, domNode);
 
