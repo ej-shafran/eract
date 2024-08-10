@@ -35,7 +35,7 @@ function createFiber(element) {
   const { type, props, children } = element;
 
   if (typeof type === "function") {
-    const returnedElement = type();
+    const returnedElement = type(props);
     const returnedFiber = createFiber(returnedElement);
 
     return {
