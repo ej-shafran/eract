@@ -1,3 +1,5 @@
+import { todo } from "./common/utils";
+
 /**
  * @typedef {{
  *   type: string | (() => ReactElement),
@@ -37,6 +39,10 @@ export function useState(initialState) {
     rerender();
   }
   return [states[cursor], setState];
+}
+
+export function useEffect() {
+  todo();
 }
 
 function createElement(type, props = {}, ...children) {
@@ -174,7 +180,11 @@ function reconcile(parentDomNode, fiber, element) {
 
     if (typeof element.type === "function") {
       const returnedElement = element.type(element.props);
-      const newFiber = reconcile(parentDomNode, fiber.returnedFiber, returnedElement);
+      const newFiber = reconcile(
+        parentDomNode,
+        fiber.returnedFiber,
+        returnedElement,
+      );
       fiber.returnedFiber = newFiber;
       fiber.childFibers = newFiber.childFibers;
       fiber.domNode = newFiber.domNode;
@@ -211,5 +221,3 @@ function render(element, domNode) {
 }
 
 export const ReactDOM = { render };
-
-

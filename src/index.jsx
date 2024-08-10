@@ -1,8 +1,12 @@
-import { React, ReactDOM, useState } from "./react";
+import { React, ReactDOM, useState, useEffect } from "./react";
 
 function App() {
   const [count, setCount] = useState(0);
   const [fullName, setFullName] = useState("");
+
+  useEffect(() => {
+    console.log("count = ", count);
+  }, [count]);
 
   return (
     <div>
