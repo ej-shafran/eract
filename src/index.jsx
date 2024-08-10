@@ -11,9 +11,31 @@ function createElement(type, props = {}, ...children) {
 const React = { createElement };
 
 function createFiber(element) {
-  todo();
-}
+  if (typeof element !== "object") {
+    todo();
+    return;
+  }
 
+  const { type, props, children } = element;
+
+  if (typeof type === "function") {
+    todo();
+    return;
+  }
+
+  const domNode = document.createElement(type);
+
+  const childFibers = children.map(createFiber);
+  childFibers.forEach(fiber => {
+    domNode.appendChild(fiber.domNode);
+  });
+
+  return {
+    domNode,
+    childFibers,
+    element,
+  }
+}
 function render(element, domNode) {
   const fiber = createFiber(element);
   domNode.appendChild(fiber.domNode);
