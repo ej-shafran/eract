@@ -44,15 +44,17 @@ export function useState(initialState) {
 export function useEffect(callback, deps) {
   const cursor = hookCursor++;
   if (hooks.length <= cursor) {
-    callback();
-    hooks[cursor] = deps;
+    const cleanup = callback();
+    hooks[cursor] = { deps, cleanup };
     return;
   }
 
-  const changed = deps.some((dep, i) => !Object.is(dep, hooks[cursor][i]));
+  const changed = deps.some((dep, i) => !Object.is(dep, hooks[cursor].deps[i]));
   if (changed) {
-    callback();
-    hooks[cursor] = deps;
+    const cleanup = hooks[cursor].cleanup;
+    if (cleanup) cleanup();
+    const newCleanup = callback();
+    hooks[cursor] = { deps, cleanup: newCleanup };
   }
 }
 
