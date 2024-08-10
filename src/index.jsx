@@ -66,11 +66,11 @@ function render(element, domNode) {
 
 const ReactDOM = { render };
 
-function App() {
-  return <div id="app" onClick={() => console.log("hi!")}>Hello, world!</div>
+function App({ id }) {
+  return <div id={id} onClick={() => console.log("hi!")}>Hello, world!</div>
 }
 
-const element = <App />;
+const element = <App id="app" />;
 const domNode = document.getElementById("root");
 ReactDOM.render(element, domNode);
 
