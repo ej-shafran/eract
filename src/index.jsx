@@ -55,7 +55,7 @@ function render(element, domNode) {
 
 const ReactDOM = { render };
 
-const element = (<div id="app">Hello, world!</div>);
+const element = (<div id="app" onClick={() => console.log("hi!")}>Hello, world!</div>);
 const domNode = document.getElementById("root");
 ReactDOM.render(element, domNode);
 
