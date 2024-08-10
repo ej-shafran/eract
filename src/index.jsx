@@ -82,7 +82,9 @@ function createFiber(element) {
 function reconcile(parentDomNode, fiber, element) {
   if (!fiber) {
     // create a fiber for the element and add its node to the dom
-    todo();
+    const newFiber = createFiber(element);
+    parentDomNode.appendChild(newFiber.domNode);
+    return newFiber;
   } else if (element === null || element === undefined) {
     // remove the existing node from the dom
     todo();
@@ -90,7 +92,18 @@ function reconcile(parentDomNode, fiber, element) {
     // replace the existing node with a new one
     todo();
   } else {
+    if (typeof element !== "object") {
+      todo();
+      return;
+    }
+
+    if (typeof element.type === "function") {
+      todo();
+      return;
+    }
+
     // update the existing node in-place
+    updateDomProperties(fiber.domNode, fiber.element.props, element.props);
     todo();
   }
 }
@@ -104,15 +117,7 @@ function render(element, domNode) {
     }
   }
 
-  if (!rootFiber) {
-    const fiber = createFiber(element);
-    domNode.appendChild(fiber.domNode);
-    rootFiber = fiber;
-  } else {
-    updateDomProperties(rootFiber.domNode, rootFiber.element.props, element.props);
-
-    todo();
-  }
+  rootFiber = reconcile(domNode, rootFiber, element);
 }
 
 const ReactDOM = { render };
